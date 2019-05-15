@@ -7,6 +7,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -18,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import com.google.api.services.sheets.v4.Sheets;
@@ -45,6 +52,9 @@ public class PoolRunner implements ApplicationRunner {
 
 	@Autowired
 	private Wiki wiki;
+
+	@Autowired
+	private JavaMailSender sender;
 
 	private void processPooler(Pooler pooler) throws GeneralSecurityException, IOException {
 		final String range = String.format("%s%d:%s%d", pooler.getNameColumn(), pooler.getStartRow(),
@@ -118,11 +128,31 @@ public class PoolRunner implements ApplicationRunner {
 		return 0;
 	}
 
+	private void sendmail(Pooler... poolers) throws AddressException, MessagingException, IOException {
+		MimeMessage message = sender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message);
+
+		StringBuffer buffer = new StringBuffer();
+		for (Pooler pooler : poolers) {
+			Integer sum = pooler.getResults().values().stream().collect(Collectors.summingInt(Integer::intValue));
+			buffer.append(pooler.getName() + ": " + sum);
+			buffer.append("\n");
+		}
+		buffer.append("\n");
+		buffer.append("https://docs.google.com/spreadsheets/d/1o9MWe4gshiO4aYslkWczZ0TOKuUaoB5fr8Gt6osdN_M/edit#gid=0");
+		for (Pooler pooler : poolers) {
+			helper.setTo(pooler.getEmail());
+			helper.setText(buffer.toString());
+			helper.setSubject("DeathPool Results");
+			sender.send(message);
+		}
+	}
+
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		Pooler melissa = new Pooler("A", "B", 2, 48);
-		Pooler birch = new Pooler("C", "D", 2, 42);
-		Pooler nuno = new Pooler("E", "F", 2, 45);
+		Pooler melissa = new Pooler("Melissa", "mel.dailey@gmail.com", "A", "B", 2, 48);
+		Pooler birch = new Pooler("Birch", "birchsport@gmail.com", "C", "D", 2, 42);
+		Pooler nuno = new Pooler("Nuno", "nmgoncal@yahoo.com", "E", "F", 2, 45);
 		processPooler(melissa);
 		updateSpreadSheet(melissa);
 		processPooler(birch);
@@ -133,5 +163,6 @@ public class PoolRunner implements ApplicationRunner {
 		logger.info("Melissa: {}", melissa);
 		logger.info("Birch: {}", birch);
 		logger.info("Nuno: {}", nuno);
+		sendmail(melissa, birch, nuno);
 	}
 }

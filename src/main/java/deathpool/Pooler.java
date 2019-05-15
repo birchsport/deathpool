@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class Pooler {
 
+	private final String name;
+	private final String email;
 	private final String nameColumn;
 	private final String resultColumn;
 	private final int startRow;

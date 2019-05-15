@@ -28,6 +28,7 @@ repositories {
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter')
+    compile('org.springframework.boot:spring-boot-starter-mail')
     compile 'fastily:jwiki:1.7.0'
  	compile 'com.google.api-client:google-api-client:1.23.0'
     compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
