@@ -129,8 +129,6 @@ public class PoolRunner implements ApplicationRunner {
 	}
 
 	private void sendmail(Pooler... poolers) throws AddressException, MessagingException, IOException {
-		MimeMessage message = sender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message);
 
 		StringBuffer buffer = new StringBuffer();
 		for (Pooler pooler : poolers) {
@@ -141,6 +139,8 @@ public class PoolRunner implements ApplicationRunner {
 		buffer.append("\n");
 		buffer.append("https://docs.google.com/spreadsheets/d/1o9MWe4gshiO4aYslkWczZ0TOKuUaoB5fr8Gt6osdN_M/edit#gid=0");
 		for (Pooler pooler : poolers) {
+			MimeMessage message = sender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message);
 			helper.setTo(pooler.getEmail());
 			helper.setText(buffer.toString());
 			helper.setSubject("DeathPool Results");
