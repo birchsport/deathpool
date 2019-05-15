@@ -24,6 +24,8 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 
+import fastily.jwiki.core.Wiki;
+
 @SpringBootApplication
 @PropertySource("classpath:application.properties")
 public class CrudApplication {
@@ -57,6 +59,11 @@ public class CrudApplication {
 			e.printStackTrace();
 		}
 		return null;
+    }
+
+    @Bean
+    public Wiki wiki() {
+		return new Wiki("en.wikipedia.org");
     }
 
     @Bean

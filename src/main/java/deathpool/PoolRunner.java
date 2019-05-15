@@ -33,11 +33,7 @@ public class PoolRunner implements ApplicationRunner {
 
 	private static final int BASE_AGE = 135;
 
-
-
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-
-
 
 	@Value("${spreadsheet.id}")
 	private String spreadsheetId;
@@ -46,6 +42,9 @@ public class PoolRunner implements ApplicationRunner {
 
 	@Autowired
 	private Sheets sheets;
+
+	@Autowired
+	private Wiki wiki;
 
 	private void processPooler(Pooler pooler) throws GeneralSecurityException, IOException {
 		final String range = String.format("%s%d:%s%d", pooler.getNameColumn(), pooler.getStartRow(),
@@ -79,7 +78,6 @@ public class PoolRunner implements ApplicationRunner {
 	}
 
 	private Integer checkCelebrity(String name) {
-		Wiki wiki = new Wiki("en.wikipedia.org");
 
 		String pageText = wiki.getPageText(name);
 		if (StringUtils.isEmpty(pageText)) {
