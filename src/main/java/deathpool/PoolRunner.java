@@ -56,16 +56,23 @@ public class PoolRunner implements ApplicationRunner {
 	@Autowired
 	private JavaMailSender sender;
 
+
 	private void processPooler(Pooler pooler) throws GeneralSecurityException, IOException {
 		final String range = String.format("%s%d:%s%d", pooler.getNameColumn(), pooler.getStartRow(),
-				pooler.getNameColumn(), pooler.getEndRow());
+				pooler.getResultColumn(), pooler.getEndRow());
 		ValueRange response = sheets.spreadsheets().values().get(spreadsheetId, range).execute();
 		List<List<Object>> values = response.getValues();
 		for (List<Object> row : values) {
 			String name = (String) row.get(0);
+			Integer score = Integer.parseInt((String) row.get(1));
 			logger.info("Celeb name: {}", name);
-			Integer status = checkCelebrity(name);
-			pooler.getResults().put(name, status);
+			if(score != null && score.intValue() != 0) {
+				logger.info("Using existing non-zero score {} for {}", score, name);
+				pooler.getResults().put(name, score);
+			} else {
+				Integer status = checkCelebrity(name);
+				pooler.getResults().put(name, status);
+			}
 			pooler.getNames().add(name);
 		}
 	}

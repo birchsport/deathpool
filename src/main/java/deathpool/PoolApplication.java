@@ -28,10 +28,10 @@ import fastily.jwiki.core.Wiki;
 
 @SpringBootApplication
 @PropertySource("classpath:application.properties")
-public class CrudApplication {
+public class PoolApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CrudApplication.class, args);
+        SpringApplication.run(PoolApplication.class, args);
     }
 
     @Value("${creds.file:credentials.json}")
